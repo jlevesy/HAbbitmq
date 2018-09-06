@@ -1,0 +1,37 @@
+---
+version: '3.7'
+
+networks:
+  rabbitmq:
+
+services:
+  haproxy:
+    image: haproxy:1.8
+    volumes:
+      - ./config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+      - 1936:1936
+
+  rabbit_one:
+    image: rabbitmq:3-management
+    volumes:
+      - ./config/rabbitmq/ha.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=cookie
+      - RABBITMQ_NODENAME=rabbit@rabbit_one
+    networks:
+      - rabbitmq
+
+  rabbit_two:
+    image: rabbitmq:3-management
+    volumes:
+      - ./config/rabbitmq/ha.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=cookie
+      - RABBITMQ_NODENAME=rabbit@rabbit_two
+    networks:
+      - rabbitmq
